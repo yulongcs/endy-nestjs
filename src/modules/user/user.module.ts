@@ -5,7 +5,9 @@ import { LogModule } from '../log/log.module';
 
 @Module({
   // 引入LogModule
-  imports: [LogModule],
+  imports: [
+    LogModule.register('user')
+  ],
   controllers: [UserController],
   providers: [UserService]
 })
