@@ -3,8 +3,8 @@ import { LogService } from './log.service';
 
 @Module({})
 export class LogModule {
-  // register函数中可以接收外部传递过来的变量,或者对象
-  static register(prefix: string): DynamicModule {
+  // forRoot函数中可以接收外部传递过来的变量,或者对象
+  static forRoot(prefix: string): DynamicModule {
     return {
       module: LogModule,
       providers: [

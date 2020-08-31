@@ -6,7 +6,7 @@ import { LogModule } from '../log/log.module';
 @Module({
   // 引入LogModule
   imports: [
-    LogModule.register('user')
+    LogModule.forRoot('user')
   ],
   controllers: [UserController],
   providers: [UserService]
