@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>帖子</title>
+</head>
+
+<body>
+  <% if (!user) { %>
+    <form action="/user/login" method="post">
+      <p>
+          用户ID: <input type="text" name="id" value="0" />
+      </p>
+      <p>
+          <button type="submit">登录</button>
+      </p>
+    </form>
+  <% } %>
+  <h1>帖子</h1>
+  <ul>
+    <% posts.forEach(function(post){ %>
+     <li>
+       <h4>
+        <%= post.title %>
+       </h4>
+       <div>
+        <%= post.content %>
+       </div>
+     </li>
+    <% }); %>
+  </ul>
+  <form action="/post" method="post">
+    <p>
+      标题: <input type="text" name="title" />
+    </p>
+    <p>
+      内容： <textarea name="content" ></textarea>
+    </p>
+    <p>
+      <button type="submit">添加</button>
+    </p>
+  </form>
+</body>
+
+</html>
