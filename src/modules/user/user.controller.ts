@@ -6,13 +6,16 @@ import {
   Delete,
   Param,
   Body,
-  Render,
   Req,
   Res,
   ParseIntPipe,
 } from '@nestjs/common';
+import { Transaction, TransactionManager, EntityManager } from 'typeorm';
 import { UserService } from '../user/user.service'
 import { LogService } from '../log/log.service';
+
+import { UserEntity } from './user.entity';
+import { RoleEntity } from  '../role/role.entity';
 
 @Controller('user')
 export class UserController {
@@ -28,37 +31,32 @@ export class UserController {
   }
 
   @Get(':id')
-  async user(
+  async detail(
     @Param('id', new ParseIntPipe()) id,
   ) {
     return  await this.userService.detail(id);
   }
 
   @Post()
-  async addUser(
-    @Body() body: any
-  ) {
-    const { name } = body;
-    const userList = await this.userService.list();
-    const [user] = userList.sort(item => item.id);
-
+  @Transaction()
+  async create(
+    @Body() body: Extract<UserEntity, RoleEntity>,
+    @TransactionManager() manager: EntityManager,
+  ): Promise<UserEntity> {
     this.logService.log('add user');
-    return await this.userService.add({
-      id: user.id + 1,
-      name: name,
-    })
+    return await this.userService.create(body, manager);
   }
 
   @Patch(':id')
   async updateUser(
     @Param('id', new ParseIntPipe()) id,
-    @Body() body: any
+    @Body() body: UserEntity
   ) {
     this.logService.log('update user');
     return await this.userService.update(
       {
         id,
-        name: body.name
+        ...body,
       }
     )
   }

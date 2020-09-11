@@ -1,48 +1,75 @@
 import { Injectable } from '@nestjs/common';
-
-const userList = [
-  {
-    id: 0,
-    name: '张三',
-  },
-  {
-    id: 1,
-    name: '李四',
-  },
-];
-
-type User = {
-  id: number,
-  name: string,
-};
+import { InjectRepository } from '@nestjs/typeorm';
+import { EntityManager } from 'typeorm';
+import { Repository } from 'typeorm';
+import { UserEntity } from './user.entity';
+import { RoleEntity } from '../role/role.entity'
 
 @Injectable()
 export class UserService {
-  async list(): Promise<User[]> {
-    return userList;
-  }
+  constructor(
+    @InjectRepository(UserEntity)
+    private readonly userRepository: Repository<UserEntity>,
+    private readonly roleRepository: Repository<RoleEntity>
+  ) { }
 
-  async detail(id: number) {
-    return userList.find(item => item.id === id);
-  }
-
-  async add(user: User) {
-    userList.push(user);
-    return true;
-  }
-
-  async update(user: User) {
-    userList.forEach(item => {
-      if(item.id === user.id) {
-        item.name = user.name;
-      }
+  // 创建数据,传递一个对象类型的数据
+  async create(
+    data: Extract<UserEntity, RoleEntity>,
+    manager: EntityManager
+  ) {
+    const { username, password, roleId } = data;
+    const user = new UserEntity();
+    user.username = username;
+    user.password = password;
+    user.isDel = 0;
+    const role = await this.roleRepository.findOne(roleId, {
+      relations: ['users'],
     });
-    return true;
+
+    // user里面添加role
+    user.roles = [role];
+
+    // 场景user
+    await manager.save(user);
+
+    // 更新role
+    await manager.update(
+      RoleEntity,
+      role,
+      {
+        users: [...role.users, role],
+      }
+    );
+
+    return {
+      sucess: true
+    }
   }
 
+  // 查询全部的数据
+  async list(): Promise<UserEntity[]> {
+    return await this.userRepository.find({
+      relations: ['posts', 'roles']
+    });
+  }
+
+  // 查询详情
+  async detail(id: number) {
+    return this.userRepository.findOne({
+      where: { id },
+      relations: ['posts', 'roles']
+    });
+  }
+
+  // 更新user
+  async update(user: UserEntity) {
+    const { id, ...rest } = user;
+    return this.userRepository.update(id, rest)
+  }
+
+  // 删除user
   async delete(id: number) {
-    const index = userList.findIndex(item => item.id === id);
-    userList.splice(index,1);
-    return true;
+    return this.userRepository.delete(id)
   }
 }

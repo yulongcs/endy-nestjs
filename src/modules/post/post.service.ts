@@ -1,53 +1,38 @@
 import { Injectable } from '@nestjs/common';
-
-type Post = {
-  id: number,
-  title: string,
-  content: string,
-};
-
-const postList = [
-  {
-    id: 0,
-    title: '帖子一',
-    content: '内容一',
-  },
-  {
-    id: 1,
-    title: '帖子二',
-    content: '内容二',
-  },
-];
-
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { PostEntity } from './post.entity';
 
 @Injectable()
 export class PostService {
-  async list(): Promise<Post[]> {
-    return postList;
+  constructor (
+    @InjectRepository(PostEntity)
+    private readonly postRepository: Repository<PostEntity>
+  ) { }
+
+  // 创建数据,传递一个对象类型的数据
+  async create(user: PostEntity): Promise<PostEntity> {
+    return await this.postRepository.save(user);
   }
 
+  // 查询全部的数据
+  async list(): Promise<PostEntity[]> {
+    return await this.postRepository.find();
+  }
+
+  // 查询详情
   async detail(id: number) {
-    return postList.find(item => item.id === id);
+    return this.postRepository.findOne({ where: { id }});
   }
 
-  async add(post: Post) {
-    postList.push(post);
-    return true;
+  // 更新user
+  async update(user: PostEntity) {
+    const { id, ...rest} = user;
+    return this.postRepository.update(id, rest)
   }
 
-  async update(post: Post) {
-    postList.forEach(item => {
-      if(item.id === post.id) {
-        item.title = post.title;
-        item.content = post.content;
-      }
-    });
-    return true;
-  }
-
+  // 删除user
   async delete(id: number) {
-    const index = postList.findIndex(item => item.id === id);
-    postList.splice(index,1);
-    return true;
+    return this.postRepository.delete(id)
   }
 }

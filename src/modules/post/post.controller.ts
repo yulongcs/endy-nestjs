@@ -10,8 +10,9 @@ import {
   Render,
   Request,
 } from '@nestjs/common';
-import { PostService } from '../post/post.service';
+import { PostService } from './post.service';
 import { LogService } from '../log/log.service';
+import { PostEntity } from './post.entity';
 
 @Controller('post')
 export class PostController {
@@ -35,39 +36,30 @@ export class PostController {
   }
 
   @Get(':id')
-  async post(
+  async detail(
     @Param('id', new ParseIntPipe()) id,
   ) {
     return  await this.postService.detail(id);
   }
 
   @Post()
-  async addPost(
-    @Body() body: any
+  async create(
+    @Body() body: PostEntity
   ) {
-    const postList = await this.postService.list();
-    const [post] = postList.sort(item => item.id);
-
-    this.logService.log('add post');
-    return await this.postService.add({
-      id: post.id + 1,
-      title: body.title,
-      content: body.content,
-    })
+    this.logService.log('create post');
+    return await this.postService.create(body);
   }
 
   @Patch(':id')
   async updateUser(
     @Param('id', new ParseIntPipe()) id,
-    @Body() body: any
+    @Body() body: PostEntity
   ) {
-
     this.logService.log('update post');
     return await this.postService.update(
       {
         id,
-        title: body.title,
-        content: body.content,
+        ...body,
       }
     )
   }
