@@ -1,5 +1,6 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, UseInterceptors } from '@nestjs/common';
 import { AppService } from './app.service';
+import { LoggingInterceptor } from './interceptors/logging.interceptor';
 
 @Controller() // 使用nestjs的装饰器装饰表示该类是一个控制器
 export class AppController {
@@ -9,6 +10,7 @@ export class AppController {
   ) {}
 
   @Get() // 定义http的请求方式为get请求
+  @UseInterceptors(new LoggingInterceptor()) // 在控制器层面使用拦截器
   getHello(): string { // 函数名可以随便定义
     return this.appService.getHello(); // 控制层调用服务层的getHello()方法
   }

@@ -4,6 +4,7 @@ import { AppModule } from './app.module';
 import { Logger } from '@nestjs/common';
 import * as session from 'express-session';
 // import { AuthGuard } from 'src/guard/auth.guard';
+import { LoggingInterceptor } from './interceptors/logging.interceptor';
 
 // 引入包
 import { NestExpressApplication } from '@nestjs/platform-express';
@@ -19,6 +20,9 @@ async function bootstrap() {
 
   // 类型使用中间件的方式在全局使用守卫(不建议这样使用,颗粒度不够细)
   // app.useGlobalGuards(new AuthGuard())
+
+   // 使用拦截器
+   app.useGlobalInterceptors(new LoggingInterceptor())
 
   app.useStaticAssets(join(__dirname, '..', 'public'), {
     prefix: '/static/'

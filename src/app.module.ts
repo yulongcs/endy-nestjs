@@ -10,6 +10,8 @@ import { RoleController } from './modules/role/role.controller';
 import { RoleService } from './modules/role/role.service';
 import { RoleModule } from './modules/role/role.module';
 import { LoginMiddleware } from './middlewares/login.middleware';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { LoggingInterceptor } from './interceptors/logging.interceptor';
 
 @Module({
   imports: [
@@ -37,7 +39,12 @@ import { LoginMiddleware } from './middlewares/login.middleware';
     RoleModule,
   ], 
   controllers: [AppController, RoleController], // 该模块所用到的控制器
-  providers: [AppService, UserService, PostService, RoleService],  // 该模块的提供者
+  providers: [AppService, UserService, PostService, RoleService, 
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: LoggingInterceptor, // 在模块中使用依赖注入的方式
+    },
+  ],  // 该模块的提供者
   exports: [], // 别的模块要使用该模块中的某几个方法，就要在这里对外暴漏
 })
 
