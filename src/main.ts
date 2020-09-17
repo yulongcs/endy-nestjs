@@ -3,6 +3,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { Logger } from '@nestjs/common';
 import * as session from 'express-session';
+// import { AuthGuard } from 'src/guard/auth.guard';
 
 // 引入包
 import { NestExpressApplication } from '@nestjs/platform-express';
@@ -14,7 +15,10 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   // 配置中间件使用session,加盐是123456(随便写的)
-  app.use(session({ secret: '123456', cookie: { maxAge: 60000 } }))
+  app.use(session({ secret: '123456', cookie: { maxAge: 60000 } }));
+
+  // 类型使用中间件的方式在全局使用守卫(不建议这样使用,颗粒度不够细)
+  // app.useGlobalGuards(new AuthGuard())
 
   app.useStaticAssets(join(__dirname, '..', 'public'), {
     prefix: '/static/'

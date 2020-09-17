@@ -9,6 +9,7 @@ import {
   Req,
   Res,
   ParseIntPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { Transaction, TransactionManager, EntityManager } from 'typeorm';
 import { UserService } from '../user/user.service'
@@ -17,7 +18,10 @@ import { LogService } from '../log/log.service';
 import { UserEntity } from './user.entity';
 import { RoleEntity } from  '../role/role.entity';
 
+import { AuthGuard } from 'src/guard/auth.guard';
+
 @Controller('user')
+@UseGuards(AuthGuard) // 在控制器层面控制
 export class UserController {
   constructor(
     private readonly userService: UserService,
@@ -39,10 +43,11 @@ export class UserController {
 
   @Post()
   @Transaction()
+  @UseGuards(AuthGuard) // 该接口被守卫了
   async create(
     @Body() body: Extract<UserEntity, RoleEntity>,
     @TransactionManager() manager: EntityManager,
-  ) {
+  ){
     this.logService.log('add user');
     return await this.userService.create(body, manager);
   }

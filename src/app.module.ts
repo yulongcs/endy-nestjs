@@ -9,8 +9,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { RoleController } from './modules/role/role.controller';
 import { RoleService } from './modules/role/role.service';
 import { RoleModule } from './modules/role/role.module';
-import { LoginMiddleware } from './middlewares/login.middleware'
-
+import { LoginMiddleware } from './middlewares/login.middleware';
 
 @Module({
   imports: [
