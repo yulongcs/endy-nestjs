@@ -1,5 +1,5 @@
 import * as path from 'path';
-import { Module } from '@nestjs/common';
+import { Module, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
 import { ConfigModule, ConfigService } from 'nestjs-config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -9,6 +9,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { RoleController } from './modules/role/role.controller';
 import { RoleService } from './modules/role/role.service';
 import { RoleModule } from './modules/role/role.module';
+import { LoginMiddleware } from './middlewares/login.middleware'
 
 
 @Module({
@@ -40,4 +41,14 @@ import { RoleModule } from './modules/role/role.module';
   providers: [AppService, UserService, PostService, RoleService],  // 该模块的提供者
   exports: [], // 别的模块要使用该模块中的某几个方法，就要在这里对外暴漏
 })
-export class AppModule {}
+
+export class AppModule implements MiddlewareConsumer { 
+  apply:any
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(LoginMiddleware)
+      .exclude({ path: '/user/login', method: RequestMethod.POST })
+      .forRoutes({ path: '*', method: RequestMethod.ALL });
+  }
+}
+

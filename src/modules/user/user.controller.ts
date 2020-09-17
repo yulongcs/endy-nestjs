@@ -42,7 +42,7 @@ export class UserController {
   async create(
     @Body() body: Extract<UserEntity, RoleEntity>,
     @TransactionManager() manager: EntityManager,
-  ): Promise<UserEntity> {
+  ) {
     this.logService.log('add user');
     return await this.userService.create(body, manager);
   }
