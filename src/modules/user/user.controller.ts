@@ -10,6 +10,8 @@ import {
   Res,
   ParseIntPipe,
   UseGuards,
+  HttpStatus,
+  HttpException,
 } from '@nestjs/common';
 import { Transaction, TransactionManager, EntityManager } from 'typeorm';
 import { UserService } from '../user/user.service'
@@ -31,7 +33,11 @@ export class UserController {
   @Get()
   async list() {
     this.logService.log('list');
-    return await this.userService.list();
+    try{
+      return await this.userService.list();
+    } catch(error) {
+      throw new HttpException('获取数据错误', HttpStatus.OK);
+    }
   }
 
   @Get(':id')

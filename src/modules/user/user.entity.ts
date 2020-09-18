@@ -50,10 +50,10 @@ export class UserEntity {
   })
   isDel: number;
 
-  @Expose()
-  isDelStr(): string {
-    return this.isDel ? '删除' : '正常';
-  }
+  // @Expose()
+  // isDelStr(): string {
+  //   return this.isDel ? '删除' : '正常';
+  // }
 
   @CreateDateColumn({
     type: 'timestamp',

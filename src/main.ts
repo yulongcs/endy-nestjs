@@ -5,6 +5,7 @@ import { Logger, ValidationPipe } from '@nestjs/common';
 import * as session from 'express-session';
 // import { AuthGuard } from 'src/guard/auth.guard';
 import { LoggingInterceptor } from './interceptors/logging.interceptor';
+import { HttpExceptionFilter } from './filters/http-exception.filter';
 
 // 引入包
 import { NestExpressApplication } from '@nestjs/platform-express';
@@ -26,6 +27,9 @@ async function bootstrap() {
 
    // 使用管道
    app.useGlobalPipes(new ValidationPipe());
+
+   // 统一异常过滤器，统一错误返回的格式
+   app.useGlobalFilters(new HttpExceptionFilter());
 
   app.useStaticAssets(join(__dirname, '..', 'public'), {
     prefix: '/static/'
