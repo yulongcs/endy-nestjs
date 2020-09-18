@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { Logger } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import * as session from 'express-session';
 // import { AuthGuard } from 'src/guard/auth.guard';
 import { LoggingInterceptor } from './interceptors/logging.interceptor';
@@ -23,6 +23,9 @@ async function bootstrap() {
 
    // 使用拦截器
    app.useGlobalInterceptors(new LoggingInterceptor())
+
+   // 使用管道
+   app.useGlobalPipes(new ValidationPipe());
 
   app.useStaticAssets(join(__dirname, '..', 'public'), {
     prefix: '/static/'

@@ -8,6 +8,7 @@ import {
   UpdateDateColumn,
   DeepPartial,
 } from "typeorm";
+import { Exclude, Expose } from 'class-transformer';
 
 import { PostEntity } from "../post/post.entity";
 import { RoleEntity } from "../role/role.entity";
@@ -31,6 +32,7 @@ export class UserEntity {
   })
   username: string;
 
+  @Exclude() // 排除返回字段,不返回给前端
   @Column({
     type: 'varchar',
     nullable: false,
@@ -47,6 +49,11 @@ export class UserEntity {
     comment: '是否删除,1表示删除,0表示正常'
   })
   isDel: number;
+
+  @Expose()
+  isDelStr(): string {
+    return this.isDel ? '删除' : '正常';
+  }
 
   @CreateDateColumn({
     type: 'timestamp',

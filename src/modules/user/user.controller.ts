@@ -36,7 +36,7 @@ export class UserController {
 
   @Get(':id')
   async detail(
-    @Param('id', new ParseIntPipe()) id,
+    @Param('id', new ParseIntPipe()) id: number,
   ) {
     return  await this.userService.detail(id);
   }
