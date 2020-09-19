@@ -3,15 +3,24 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager } from 'typeorm';
 import { Repository } from 'typeorm';
 import { UserEntity } from './user.entity';
-import { RoleEntity } from '../role/role.entity'
+import { RoleEntity } from '../role/role.entity';
+import { LoginDTO } from './login/login.dto';
+import NodeAuth from 'node-auth0';
+import { jwt } from '../../utils/jwt';
+import { RedisUtilsService } from '../redis-utils/redis-utils.service';
 
 @Injectable()
 export class UserService {
+  private nodeAuth: NodeAuth;
+
   constructor(
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
-    private readonly roleRepository: Repository<RoleEntity>
-  ) { }
+    private readonly roleRepository: Repository<RoleEntity>,
+    private readonly redisUtilsService: RedisUtilsService,
+  ) {
+    this.nodeAuth = new NodeAuth();
+  }
 
   // 创建数据,传递一个对象类型的数据
   async create(
@@ -71,5 +80,25 @@ export class UserService {
   // 删除user
   async delete(id: number) {
     return this.userRepository.delete(id)
+  }
+
+  async login(data: LoginDTO): Promise<any | string> {
+    // 根据用户名去查询数据,然后验证密码
+    const { username, password } = data;
+    const user = await this.userRepository.findOne({ where: { username } });
+    if (user && this.nodeAuth.checkPassword(password, user.password)) {
+      // 登录成功生成token、获取该用户的资源存到redis中
+    // 1.生成token
+    const token = jwt.createToken(String(user.id));
+    // 2.token存到到redis中
+    const redisData = {
+      token,
+      user,
+    }
+    this.redisUtilsService.set(String(user.id), redisData);
+    return { ...user, token };
+    } else {
+      return '账号或密码错误';
+    }
   }
 }

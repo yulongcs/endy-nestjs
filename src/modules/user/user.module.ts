@@ -4,6 +4,7 @@ import { UserService } from './user.service';
 import { LogModule } from '../log/log.module';
 import { AuthGuard } from 'src/guard/auth.guard';
 import { APP_GUARD, APP_PIPE } from '@nestjs/core';
+import { LoginController } from './login/login.controller';
 
 @Module({
   imports: [LogModule.register('user')],
@@ -18,6 +19,6 @@ import { APP_GUARD, APP_PIPE } from '@nestjs/core';
       useClass: ValidationPipe, // 在模块中依赖注入的方式使用管道
     }
   ],
-  controllers: [UserController],
+  controllers: [UserController, LoginController],
 })
 export class UserModule {}

@@ -12,6 +12,7 @@ import { RoleModule } from './modules/role/role.module';
 import { LoginMiddleware } from './middlewares/login.middleware';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { LoggingInterceptor } from './interceptors/logging.interceptor';
+import { RedisUtilsModule } from './modules/redis-utils/redis-utils.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { LoggingInterceptor } from './interceptors/logging.interceptor';
       inject: [ConfigService],
     }),
     RoleModule,
+    RedisUtilsModule,
   ], 
   controllers: [AppController, RoleController], // 该模块所用到的控制器
   providers: [AppService, UserService, PostService, RoleService, 

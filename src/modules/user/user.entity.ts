@@ -7,14 +7,59 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   DeepPartial,
+  BeforeInsert,
 } from "typeorm";
 import { Exclude, Expose } from 'class-transformer';
+import NodeAuth from 'node-auth0';
+import jwt from 'jsonwebtoken';
 
 import { PostEntity } from "../post/post.entity";
 import { RoleEntity } from "../role/role.entity";
 
 @Entity({ name: 'user' })
 export class UserEntity {
+
+  @Expose()
+  private get token() {
+    const { id, username, } = this;
+    // 生成签名
+    return jwt.sign(
+      {
+        id,
+        username,
+      },
+      process.env.SECRET, // 加盐
+      {
+        expiresIn: '7d', // 过期时间
+      },
+    );
+  }
+
+  /**
+   * 定义返回数据,用了这个函数后上面的Exclude和Expose就失效了
+   * @param isShowToken 
+   */
+  public toResponseObject(isShowToken = true): { [propsName: string]: any } {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { nodeAuth, password, token, username, ...params } = this;
+    const responseData = {
+      username,
+      ...params,
+    }
+    if (isShowToken) {
+      return Object.assign(responseData, { token });
+    } else {
+      return responseData;
+    }
+  }
+
+  @Exclude()
+  private nodeAuth: NodeAuth;
+
+  constructor() {
+    this.nodeAuth = new NodeAuth();
+  }
+
   @PrimaryGeneratedColumn({
     type: 'int',
     name: 'id',
@@ -78,6 +123,11 @@ export class UserEntity {
 
   @ManyToMany(() => RoleEntity, role => role.users)
   roles: RoleEntity[];
+
+  @BeforeInsert()
+  makePassword(): void {
+    this.password = this.nodeAuth.makePassword(this.password);
+  }
 }
 
 export type UserEntityDataType = DeepPartial<UserEntity>;
